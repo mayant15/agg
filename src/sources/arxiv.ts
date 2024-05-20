@@ -1,7 +1,37 @@
 import { XMLParser } from 'fast-xml-parser'
 import type { Feed, Article } from '../types'
 
-const url = 'http://export.arxiv.org/api/query?search_query=all:electron'
+const MAX_RESULTS = 20
+
+// from https://arxiv.org/category_taxonomy
+const CATEGORIES = [
+  'cs.AI',
+  'cs.CL',
+  'cs.CY',
+  'cs.DB',
+  'cs.DC',
+  'cs.DM',
+  'cs.ET',
+  'cs.FL',
+  'cs.GL',
+  'cs.GR',
+  'cs.LG',
+  'cs.LO',
+  'cs.NE',
+  'cs.OS',
+  'cs.PF',
+  'cs.PL',
+  'cs.SC',
+  'cs.SE',
+]
+
+function buildUrl() {
+  const categories = CATEGORIES.map(c => `cat:${c}`).join("+OR+")
+  const max_results = MAX_RESULTS
+  return `http://export.arxiv.org/api/query?search_query=${categories}&start=0&max_results=${max_results}&sortBy=lastUpdatedDate`
+}
+
+const URL = buildUrl()
 
 const parser = new XMLParser()
 
@@ -14,6 +44,7 @@ type ArxivEntry = {
 
 type ArxivResponse = {
   feed: {
+    "opensearch:totalResults": number
     entry: ArxivEntry[]
   }
 }
@@ -29,11 +60,18 @@ function entryToArticle(entry: ArxivEntry): Article {
 }
 
 function convert(ax: ArxivResponse): Feed {
-  return ax.feed.entry.map(entryToArticle)
+  if (ax.feed['opensearch:totalResults'] > 0) {
+    return ax.feed.entry.map(entryToArticle)
+  } else {
+    return []
+  }
 }
 
 export async function getFeed(): Promise<Feed> {
-  const res = await (await fetch(url)).text()
-  return convert(parser.parse(res))
+  const res = await fetch(URL)
+  const text = await (res).text()
+  const xml = parser.parse(text)
+
+  return convert(xml)
 }
 

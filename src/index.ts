@@ -4,6 +4,8 @@ import type { Article, Feed } from "./types"
 const NUM_RANDOM_PICKS = 3
 
 function pickRandom(feed: Feed, num: number): Article[] {
+  if (feed.length < num) return feed
+
   return Array(NUM_RANDOM_PICKS)
     .fill(null)
     .map(_ => {
