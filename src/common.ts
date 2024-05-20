@@ -1,0 +1,25 @@
+export type Article = {
+  id: string
+  summary: string
+  title: string
+  link: string
+  tags: string[]
+}
+
+export type Feed = Article[]
+
+/**
+ * Promise.allSettled but ignore the rejected ones
+ */
+export async function trySettle(promises: Promise<any>[]): Promise<any[]> {
+  const results = await Promise.allSettled(promises)
+  const values = results
+    .map(res => {
+      if (res.status === 'rejected') return null
+      return res.value
+    })
+    .filter(res => res !== null)
+
+  return values;
+}
+

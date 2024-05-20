@@ -1,7 +1,7 @@
 import { XMLParser } from 'fast-xml-parser'
-import type { Feed, Article } from '../types'
+import type { Feed, Article } from '../common'
 
-const MAX_RESULTS = 20
+const MAX_RESULTS = 10
 
 // from https://arxiv.org/category_taxonomy
 const CATEGORIES = [
@@ -51,7 +51,7 @@ type ArxivResponse = {
 
 function entryToArticle(entry: ArxivEntry): Article {
   return {
-    id: entry["arxiv:doi"],
+    id: entry["arxiv:doi"] ?? "unavailable",
     title: entry.title,
     summary: entry.summary,
     link: entry.id,

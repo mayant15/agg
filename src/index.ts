@@ -1,8 +1,21 @@
+/**
+ *  TODO:
+ * - [ ] Tags
+ * - [ ] GPT summaries for articles without summaries? (mainly HN)
+ */
+
 import chalk from "chalk"
 import { getFeed as arxiv } from "./sources/arxiv"
-import type { Article, Feed } from "./types"
+import { getFeed as hn } from "./sources/hackernews"
+import { trySettle } from './common'
+
+import type { Article, Feed } from "./common"
 
 const NUM_RANDOM_PICKS = 3
+
+function mergeFeeds(...feeds: Feed[]): Feed {
+  return ([] as Feed).concat(...feeds)
+}
 
 function pickRandom(feed: Feed, num: number): Article[] {
   if (feed.length < num) return feed
@@ -17,7 +30,7 @@ function pickRandom(feed: Feed, num: number): Article[] {
 
 function present(articles: Article[]) {
   const l = console.log
-  function inner({title, summary, link}: Article, index: number) {
+  function inner({ title, summary, link }: Article, index: number) {
     l(chalk.bold.underline(`${index + 1}. ${title}`))
     l('')
     l(chalk.dim(summary))
@@ -30,8 +43,14 @@ function present(articles: Article[]) {
 }
 
 async function main() {
-  const ax = await arxiv()
-  const articles = pickRandom(ax, NUM_RANDOM_PICKS)
+  const sources = [
+    arxiv,
+    hn
+  ]
+
+  const feeds = await trySettle(sources.map(s => s()))
+  const merged = mergeFeeds(...feeds)
+  const articles = pickRandom(merged, NUM_RANDOM_PICKS)
   present(articles)
 }
 
