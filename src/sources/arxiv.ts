@@ -1,37 +1,11 @@
 import { XMLParser } from 'fast-xml-parser'
-import type { Feed, Article } from '../common'
+import type { Feed, Article, Config } from '../common'
 
-const MAX_RESULTS = 10
-
-// from https://arxiv.org/category_taxonomy
-const CATEGORIES = [
-  'cs.AI',
-  'cs.CL',
-  'cs.CY',
-  'cs.DB',
-  'cs.DC',
-  'cs.DM',
-  'cs.ET',
-  'cs.FL',
-  'cs.GL',
-  'cs.GR',
-  'cs.LG',
-  'cs.LO',
-  'cs.NE',
-  'cs.OS',
-  'cs.PF',
-  'cs.PL',
-  'cs.SC',
-  'cs.SE',
-]
-
-function buildUrl() {
-  const categories = CATEGORIES.map(c => `cat:${c}`).join("+OR+")
-  const max_results = MAX_RESULTS
-  return `http://export.arxiv.org/api/query?search_query=${categories}&start=0&max_results=${max_results}&sortBy=lastUpdatedDate`
+function buildUrl(config: Config) {
+  const query = config.arxiv.categories.map(c => `cat:${c}`).join("+OR+")
+  const maxResults = config.maxArticlesPerFeed
+  return `http://export.arxiv.org/api/query?search_query=${query}&start=0&max_results=${maxResults}&sortBy=lastUpdatedDate`
 }
-
-const URL = buildUrl()
 
 const parser = new XMLParser()
 
@@ -67,8 +41,8 @@ function convert(ax: ArxivResponse): Feed {
   }
 }
 
-export async function getFeed(): Promise<Feed> {
-  const res = await fetch(URL)
+export async function getFeed(config: Config): Promise<Feed> {
+  const res = await fetch(buildUrl(config))
   const text = await (res).text()
   const xml = parser.parse(text)
 

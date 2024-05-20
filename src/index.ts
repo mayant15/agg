@@ -9,9 +9,42 @@ import { getFeed as arxiv } from "./sources/arxiv"
 import { getFeed as hn } from "./sources/hackernews"
 import { trySettle } from './common'
 
-import type { Article, Feed } from "./common"
+import type { Article, Config, Feed } from "./common"
 
-const NUM_RANDOM_PICKS = 3
+const config: Config = {
+  maxArticlesPerFeed: 10,
+  numRandomPicks: 3,
+  sources: [
+    arxiv,
+    hn
+  ],
+  arxiv: {
+    // from https://arxiv.org/category_taxonomy
+    categories: [
+      'cs.AI',
+      'cs.CL',
+      'cs.CY',
+      'cs.DB',
+      'cs.DC',
+      'cs.DM',
+      'cs.ET',
+      'cs.FL',
+      'cs.GL',
+      'cs.GR',
+      'cs.LG',
+      'cs.LO',
+      'cs.NE',
+      'cs.OS',
+      'cs.PF',
+      'cs.PL',
+      'cs.SC',
+      'cs.SE',
+    ]
+  },
+  hackernews: {
+    type: 'top'
+  }
+}
 
 function mergeFeeds(...feeds: Feed[]): Feed {
   return ([] as Feed).concat(...feeds)
@@ -20,7 +53,7 @@ function mergeFeeds(...feeds: Feed[]): Feed {
 function pickRandom(feed: Feed, num: number): Article[] {
   if (feed.length < num) return feed
 
-  return Array(NUM_RANDOM_PICKS)
+  return Array(num)
     .fill(null)
     .map(_ => {
       const idx = Math.floor(feed.length * Math.random())
@@ -43,14 +76,9 @@ function present(articles: Article[]) {
 }
 
 async function main() {
-  const sources = [
-    arxiv,
-    hn
-  ]
-
-  const feeds = await trySettle(sources.map(s => s()))
+  const feeds = await trySettle(config.sources.map(s => s(config)))
   const merged = mergeFeeds(...feeds)
-  const articles = pickRandom(merged, NUM_RANDOM_PICKS)
+  const articles = pickRandom(merged, config.numRandomPicks)
   present(articles)
 }
 

@@ -1,7 +1,5 @@
 import { trySettle } from '../common';
-import type {Feed, Article} from '../common'
-
-const MAX_RESULTS = 10;
+import type {Feed, Article, Config} from '../common'
 
 type Story = {
   id: number,
@@ -9,16 +7,15 @@ type Story = {
   url: string
 }
 
-async function getTopIds(): Promise<number[]> {
-  const URL = 'https://hacker-news.firebaseio.com/v0/topstories.json'
-  const res = await fetch(URL)
+async function getStoryIds(config: Config): Promise<number[]> {
+  const url = `https://hacker-news.firebaseio.com/v0/${config.hackernews.type}stories.json`
+  const res = await fetch(url)
   const json: number[] = await res.json()
-  return json.slice(0, MAX_RESULTS)
+  return json.slice(0, config.maxArticlesPerFeed)
 }
 
-async function getTop(): Promise<Story[]> {
+async function getStories(ids: number[]): Promise<Story[]> {
   const url = (id: number) => `https://hacker-news.firebaseio.com/v0/item/${id}.json`
-  const ids = await getTopIds()
   const promises = ids.map(async id => {
     const res = await fetch(url(id))
     return res.json()
@@ -37,7 +34,8 @@ function convert({id, url, title}: Story): Article {
   }
 }
 
-export async function getFeed(): Promise<Feed> {
-  const top = await getTop()
-  return top.map(convert)
+export async function getFeed(config: Config): Promise<Feed> {
+  const ids = await getStoryIds(config)
+  const stories = await getStories(ids)
+  return stories.map(convert)
 }

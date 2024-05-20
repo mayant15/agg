@@ -1,3 +1,15 @@
+export type Config = {
+  maxArticlesPerFeed: number
+  numRandomPicks: number
+  sources: ((config: Config) => Promise<Feed>)[]
+  arxiv: {
+    categories: string[]
+  }
+  hackernews: {
+    type: 'new' | 'top' | 'best'
+  }
+}
+
 export type Article = {
   id: string
   summary: string
