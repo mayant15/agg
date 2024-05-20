@@ -1,3 +1,4 @@
+import chalk from "chalk"
 import { getFeed as arxiv } from "./sources/arxiv"
 import type { Article, Feed } from "./types"
 
@@ -14,10 +15,24 @@ function pickRandom(feed: Feed, num: number): Article[] {
     })
 }
 
+function present(articles: Article[]) {
+  const l = console.log
+  function inner({title, summary, link}: Article, index: number) {
+    l(chalk.bold.underline(`${index + 1}. ${title}`))
+    l('')
+    l(chalk.dim(summary))
+    l('')
+    l(chalk.blue.underline(link))
+    l('')
+    l('')
+  }
+  articles.forEach(inner)
+}
+
 async function main() {
   const ax = await arxiv()
   const articles = pickRandom(ax, NUM_RANDOM_PICKS)
-  console.log(articles.map(x => x.title).join('\n'))
+  present(articles)
 }
 
 main()
