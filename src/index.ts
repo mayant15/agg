@@ -7,6 +7,7 @@
 import chalk from "chalk"
 import { getFeed as arxiv } from "./sources/arxiv"
 import { getFeed as hn } from "./sources/hackernews"
+import { getFeed as rss } from "./sources/rss"
 import { trySettle } from './common'
 
 import type { Article, Config, Feed } from "./common"
@@ -16,13 +17,14 @@ const config: Config = {
   numRandomPicks: 3,
   sources: [
     arxiv,
-    hn
+    hn,
+    rss,
   ],
   arxiv: {
     // from https://arxiv.org/category_taxonomy
     categories: [
-      'cs.AI',
-      'cs.CL',
+      // 'cs.AI',
+      // 'cs.CL',
       'cs.CY',
       'cs.DB',
       'cs.DC',
@@ -31,23 +33,44 @@ const config: Config = {
       'cs.FL',
       'cs.GL',
       'cs.GR',
-      'cs.LG',
+      // 'cs.LG',
       'cs.LO',
       'cs.NE',
       'cs.OS',
       'cs.PF',
       'cs.PL',
-      'cs.SC',
+      // 'cs.SC',
       'cs.SE',
     ]
   },
   hackernews: {
     type: 'top'
+  },
+  rss: [
+    'https://www.mgaudet.ca/technical?format=rss'
+  ]
+}
+
+function pickFromArray<T>(array: T[]): [T, number] {
+  const index = Math.floor(Math.random() * array.length)
+  return [array[index], index]
+}
+
+function shuffle<T>(x: T[]): T[] {
+  let current = x.length
+  while (current > 0) {
+    const toSwap = Math.floor(Math.random() * current)
+    const tmp = x[current]
+    x[current] = x[toSwap]
+    x[toSwap] = tmp
+    current--
   }
+  return x
 }
 
 function mergeFeeds(...feeds: Feed[]): Feed {
-  return ([] as Feed).concat(...feeds)
+  const all = ([] as Feed).concat(...feeds)
+  return shuffle(all)
 }
 
 function pickRandom(feed: Feed, num: number): Article[] {
@@ -56,8 +79,8 @@ function pickRandom(feed: Feed, num: number): Article[] {
   return Array(num)
     .fill(null)
     .map(_ => {
-      const idx = Math.floor(feed.length * Math.random())
-      return feed[idx]
+      const [article] = pickFromArray(feed)
+      return article
     })
 }
 

@@ -7,7 +7,8 @@ export type Config = {
   }
   hackernews: {
     type: 'new' | 'top' | 'best'
-  }
+  },
+  rss: string[]
 }
 
 export type Article = {
