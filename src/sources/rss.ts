@@ -24,7 +24,7 @@ function convert(rss: RssArticle): Article {
     link: rss.link,
     title: rss.title,
     tags: [],
-    summary: "summary unavailable" // rss.description // TODO: This is HTML, render to markdown or something?
+    summary: "summary unavailable" // rss.description
   }
 }
 

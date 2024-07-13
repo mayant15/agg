@@ -2,6 +2,7 @@
  *  TODO:
  * - [ ] Tags
  * - [ ] GPT summaries for articles without summaries? (mainly HN)
+ * - [ ] RSS has HTML summaries, render with chalk?
  */
 
 import chalk from "chalk"
