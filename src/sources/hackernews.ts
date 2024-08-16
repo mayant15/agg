@@ -2,7 +2,6 @@ import { trySettle } from '../common';
 import type {Feed, Article, Config} from '../common'
 
 type Story = {
-  id: number,
   title: string,
   url: string
 }
@@ -24,10 +23,9 @@ async function getStories(ids: number[]): Promise<Story[]> {
   return stories
 }
 
-function convert({id, url, title}: Story): Article {
+function convert({url, title}: Story): Article {
   return {
     title,
-    id: String(id),
     link: url,
     tags: [],
     summary: "summary unavailable"

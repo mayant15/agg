@@ -25,7 +25,6 @@ type ArxivResponse = {
 
 function entryToArticle(entry: ArxivEntry): Article {
   return {
-    id: entry["arxiv:doi"] ?? "unavailable",
     title: entry.title,
     summary: entry.summary,
     link: entry.id,

@@ -3,28 +3,31 @@ import { trySettle } from '../common'
 import type { Article, Config, Feed } from '../common';
 
 type RssFeed = {
-  rss: {
+  rss?: {
     channel: {
       item: RssArticle[]
     }
   }
+  feed?: {
+    entry: RssArticle[]
+  }
 }
 
 type RssArticle = {
-  guid: string
   title: string
-  pubDate: string
   link: string
-  description: string
+  description?: string
+  summary?: string
+  id?: string
+  guid?: string
 }
 
 function convert(rss: RssArticle): Article {
   return {
-    id: rss.guid,
-    link: rss.link,
+    link: rss.link || (rss.guid ?? rss.id ?? ''),
     title: rss.title,
     tags: [],
-    summary: "summary unavailable" // rss.description
+    summary: rss.summary ?? 'summary unavailable' // rss.description
   }
 }
 
@@ -33,7 +36,13 @@ async function getFeedForUrl(url: string): Promise<Feed> {
   const text = await res.text()
   const parser = new XMLParser()
   const xml: RssFeed = parser.parse(text)
-  return xml.rss.channel.item.map(convert)
+  if (xml.rss) {
+    return xml.rss.channel.item.map(convert)
+  } else if (xml.feed) {
+    return xml.feed.entry.map(convert)
+  } else {
+    return []
+  }
 }
 
 export async function getFeed(config: Config): Promise<Feed> {

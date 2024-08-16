@@ -3,6 +3,7 @@
  * - [ ] Tags
  * - [ ] GPT summaries for articles without summaries? (mainly HN)
  * - [ ] RSS has HTML summaries, render with chalk?
+ * - [ ] RSS sources might not have consistent fields, transforms?
  */
 
 import chalk from "chalk"
@@ -48,7 +49,9 @@ const config: Config = {
     type: 'top'
   },
   rss: [
-    'https://www.mgaudet.ca/technical?format=rss'
+    'https://www.mgaudet.ca/technical?format=rss',
+    'https://hirrolot.github.io/rss.xml',
+    'https://stefan-marr.de/feed'
   ]
 }
 

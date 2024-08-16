@@ -12,7 +12,6 @@ export type Config = {
 }
 
 export type Article = {
-  id: string
   summary: string
   title: string
   link: string
